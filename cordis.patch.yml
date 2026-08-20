@@ -1,0 +1,6 @@
+# Standard DSH bundle layer. The official base bundle already mounts
+# @deepseek-ai/dsh-llm-pi-ai; this plugin discovers CPA and manages one route
+# inside that adapter through the public settings service.
+- insert:
+    - id: llm-cliproxyapi-auto
+      name: dsh-cliproxyapi

@@ -1,0 +1,8 @@
+packages:
+  - .
+
+nodeLinker: isolated
+autoInstallPeers: false
+
+allowBuilds:
+  esbuild: true
