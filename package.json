@@ -1,6 +1,6 @@
 {
   "name": "dsh-cliproxyapi-provider",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "CLIProxyAPI provider for DeepSeek Harness with local auto-discovery, dynamic model sync, model switching, and configurable vision-model capability.",
   "type": "module",
   "main": "lib/index.js",
@@ -48,10 +48,11 @@
     "node": "^22.19.0 || >=24.0.0"
   },
   "scripts": {
-    "build": "node scripts/harness-paths.mjs --write && tsc -p tsconfig.json --noEmit && tsdown && node scripts/harness-paths.mjs --write-anchor",
+    "build": "node scripts/harness-paths.mjs --write && tsc -p tsconfig.json --noEmit && tsdown && node scripts/verify-client-loader.mjs && node scripts/harness-paths.mjs --write-anchor",
     "typecheck": "node scripts/harness-paths.mjs --write && tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
+    "verify:loader": "node scripts/verify-client-loader.mjs",
     "prepublishOnly": "pnpm run test && pnpm run build",
     "prepare": "pnpm run build"
   },

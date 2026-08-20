@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.5
+
+- Register the browser bundle with the published `dsh-cliproxyapi-provider` name required by DSH rc.8's strict client-module loader.
+- Derive the browser module ID from `package.json` and test it alongside the host bundle name to prevent future drift.
+
 ## 0.1.4
 
 - Build and type-check against the public DSH `0.1.0-rc.8` contracts.

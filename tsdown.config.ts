@@ -1,6 +1,13 @@
+import { readFileSync } from 'node:fs'
 import { defineConfig } from 'tsdown'
 
-const ID = 'dsh-cliproxyapi'
+const manifest = JSON.parse(
+  readFileSync(new URL('./package.json', import.meta.url), 'utf8'),
+) as { name: string }
+
+// DSH's browser loader requires this ID to exactly match the bundle package
+// name. Derive it from the manifest so host and client entries cannot drift.
+const ID = manifest.name
 
 const CLIENT_EXTERNALS = [
   'react',
