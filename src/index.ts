@@ -6,7 +6,6 @@ import { Config, resolveConfig, type Config as ConfigType, type ResolvedConfig }
 import { registerCommands } from './commands.js'
 import { CpaRuntime } from './runtime.js'
 import { CpaVisionRouter } from './vision-routing.js'
-import { installDeepSeekVisionBridge } from './deepseek-bridge.js'
 
 export { Config } from './config.js'
 export type { Config as CpaConfig, ResolvedConfig } from './config.js'
@@ -16,12 +15,6 @@ export { buildPiAiRoute } from './profile.js'
 export { CpaRuntime } from './runtime.js'
 export { CpaVisionRouter } from './vision-routing.js'
 export type { VisionRoutingState } from './vision-routing.js'
-export {
-  DEEPSEEK_SOURCE_PROVIDER,
-  DEEPSEEK_VISION_BRIDGE_PROVIDER,
-  DeepSeekVisionBridgeAdapter,
-  installDeepSeekVisionBridge,
-} from './deepseek-bridge.js'
 
 export const name = 'dsh-cliproxyapi'
 export const inject = ['settings', 'credentials', 'llm']
@@ -51,7 +44,6 @@ export function apply(ctx: Context, config: ConfigType): void {
   })
   const visionRouter = new CpaVisionRouter(ctx.llm, () => runtime.visionRouting())
   ctx.on('llm/stream', (options, next) => visionRouter.stream(options, next))
-  installDeepSeekVisionBridge(ctx.llm)
 
   const reschedule = (): void => {
     resolved = resolveConfig(source())

@@ -40,7 +40,6 @@ describe('CPA vision routing', () => {
   it('describes images with the vision model before calling a text-only main model', async () => {
     const calls: GenerateOptions[] = []
     const llm: VisionStreamRuntime = {
-      resolveModelInfo: async (provider, model) => ({ provider, id: model, name: model, inputModalities: ['text'] }),
       stream: options => {
         calls.push(options)
         return response(options.model === 'vision-model' ? 'A settings screen.' : 'Main answer')
@@ -65,7 +64,6 @@ describe('CPA vision routing', () => {
 
   it('passes a native vision model through without preprocessing', async () => {
     const llm = {
-      resolveModelInfo: vi.fn(async (provider: string, model: string) => ({ provider, id: model, name: model })),
       stream: vi.fn(() => response('nested')),
     }
     const router = new CpaVisionRouter(llm, () => ({
@@ -82,7 +80,6 @@ describe('CPA vision routing', () => {
   it('caches descriptions by immutable attachment id', async () => {
     const calls: GenerateOptions[] = []
     const llm: VisionStreamRuntime = {
-      resolveModelInfo: async (provider, model) => ({ provider, id: model, name: model, inputModalities: ['text'] }),
       stream: options => {
         calls.push(options)
         return response(options.model === 'vision-model' ? 'Cached caption' : 'Main answer')
@@ -100,7 +97,7 @@ describe('CPA vision routing', () => {
   })
 
   it('passes through when no active vision route is available', async () => {
-    const router = new CpaVisionRouter({ stream: vi.fn(), resolveModelInfo: vi.fn() }, () => undefined)
+    const router = new CpaVisionRouter({ stream: vi.fn() }, () => undefined)
     const next = vi.fn(() => response('direct'))
 
     await collect(router.stream(request('text-model'), next))
@@ -108,27 +105,4 @@ describe('CPA vision routing', () => {
     expect(next).toHaveBeenCalledOnce()
   })
 
-  it('preprocesses images before delegating to a text-only non-CPA provider', async () => {
-    const calls: GenerateOptions[] = []
-    const llm: VisionStreamRuntime = {
-      resolveModelInfo: async (provider, model) => ({
-        provider, id: model, name: model, inputModalities: ['text'],
-      }),
-      stream: options => {
-        calls.push(options)
-        return response(options.model === 'vision-model' ? 'Bridge caption' : 'Official answer')
-      },
-    }
-    const router = new CpaVisionRouter(llm, () => ({
-      provider: 'cliproxyapi', visionModel: 'vision-model', directImageModels: ['vision-model'],
-    }))
-
-    await collect(router.stream({ ...request('deepseek-v4-flash'), provider: 'deepseek-official' }, () => response('raw')))
-
-    expect(calls.map(call => [call.provider, call.model])).toEqual([
-      ['cliproxyapi', 'vision-model'],
-      ['deepseek-official', 'deepseek-v4-flash'],
-    ])
-    expect(calls[1]?.messages[0]?.content.some(block => block.type === 'image')).toBe(false)
-  })
 })

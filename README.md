@@ -22,8 +22,6 @@ plugin treats CLIProxyAPI as a first-class, dynamic DSH provider:
 - **Newest versions first** — versions are sorted newest-first inside each model family.
 - **Independent vision preprocessing** — choose a vision model from the returned catalog; when the
   selected main model is text-only, the plugin describes images first and sends that text to the main model.
-- **Official DeepSeek bridge** — the `DeepSeek (CPA vision)` picker group delegates to DSH's own
-  official DeepSeek provider after CPA vision preprocessing; no DeepSeek credential or transport is copied.
 - **Capability sync** — imports context/output limits, reasoning support, image input, and service tiers
   when CPA reports them.
 - **Automatic refresh** — CPA account or model changes are picked up without reinstalling the plugin.
@@ -76,8 +74,6 @@ Replace `web` with the profile you actually use.
 3. If CPA bearer authentication is enabled, enter the API key once.
 4. After the URL and key are valid, choose the vision model from the automatically loaded dropdown.
 5. Return to a conversation and select any model under **CLIProxyAPI (auto)** in DSH's native picker.
-   To use DSH's built-in DeepSeek backend in an image-containing session, select the same model under
-   **DeepSeek (CPA vision)**.
 
 Useful commands:
 
@@ -131,12 +127,12 @@ The default, `openai-completions`, uses CPA's `/v1/chat/completions` route. Sele
 The vision model and the conversation's main model are independent. Native image-capable main models
 receive images directly. For a text-only main model, the plugin calls the selected vision model first,
 replaces each immutable image attachment with its factual description, and then calls the main model.
-Descriptions are cached by provider, vision model, and attachment ID. This lets an image-containing
-session switch back to models such as DeepSeek without modifying DSH itself.
+Descriptions are cached by provider, vision model, and attachment ID. Within the **CLIProxyAPI (auto)**
+group, this lets an image-containing session switch to text-only CPA models without modifying DSH itself.
 
-DSH's original **DeepSeek** group correctly remains text-only. The plugin adds **DeepSeek (CPA vision)**
-as a public-adapter alias: it keeps DSH's official model, credential, reasoning, retry, and transport path,
-but advertises the image capability supplied by the plugin's preprocessing step.
+DSH's built-in **DeepSeek** provider remains outside this plugin's route. DSH therefore continues to reject
+switching to a text-only built-in model when the session already contains images. The plugin does not alter,
+wrap, or relabel built-in DSH models.
 
 When the setting is empty, the plugin uses the first catalog model declaring image input. An explicitly
 selected model must genuinely accept OpenAI-compatible image content even if CPA omitted its modality metadata.

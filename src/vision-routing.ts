@@ -6,7 +6,6 @@ import {
   type ContentBlock,
   type GenerateOptions,
   type ImageBlock,
-  type LlmResolvedModelInfo,
   type Message,
   type StreamChunk,
 } from '@deepseek-ai/dsh-llm'
@@ -23,7 +22,6 @@ export interface VisionRoutingState {
 
 export interface VisionStreamRuntime {
   stream(options: GenerateOptions): AsyncIterable<StreamChunk>
-  resolveModelInfo(provider: string, model: string, signal?: AbortSignal): Promise<LlmResolvedModelInfo>
 }
 
 function imageCacheKey(block: ImageBlock): string {
@@ -89,27 +87,15 @@ export class CpaVisionRouter {
     const routing = this.state()
     if (
       routing === undefined
+      || options.provider !== routing.provider
+      || routing.directImageModels.includes(options.model)
       || !options.messages.some(message => contentHasImage(message.content))
     ) return next()
 
-    if (options.provider === routing.provider && routing.directImageModels.includes(options.model)) return next()
-
-    return this.routeOrPass(options, routing, next)
+    return this.route(options, routing)
   }
 
-  private async *routeOrPass(
-    options: GenerateOptions,
-    routing: VisionRoutingState,
-    next: () => AsyncIterable<StreamChunk>,
-  ): AsyncIterable<StreamChunk> {
-    if (options.provider !== routing.provider) {
-      const info = await this.llm.resolveModelInfo(options.provider, options.model, options.signal)
-      if (info.inputModalities?.includes('image') === true) {
-        yield* next()
-        return
-      }
-    }
-
+  private async *route(options: GenerateOptions, routing: VisionRoutingState): AsyncIterable<StreamChunk> {
     const messages: Message[] = []
     for (const message of options.messages) {
       if (!contentHasImage(message.content)) {

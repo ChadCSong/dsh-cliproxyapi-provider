@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.7
+
+- Keep DSH's built-in DeepSeek provider untouched and subject to its native image-session model-switch restriction.
+- Remove the experimental DeepSeek bridge alias so the picker does not show confusing duplicate model names.
+- Retain independent vision preprocessing only for models managed by the plugin's CPA route.
+
 ## 0.1.6
 
 - Decouple the selected vision model from the conversation's main model using DSH's public `llm/stream` extension point.

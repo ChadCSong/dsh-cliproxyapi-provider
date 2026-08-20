@@ -1,6 +1,6 @@
 {
   "name": "dsh-cliproxyapi-provider",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "CLIProxyAPI provider for DeepSeek Harness with local auto-discovery, dynamic model sync, model switching, and vision preprocessing.",
   "type": "module",
   "main": "lib/index.js",
