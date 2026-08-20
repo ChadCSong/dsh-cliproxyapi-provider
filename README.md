@@ -31,11 +31,12 @@ plugin treats CLIProxyAPI as a first-class, dynamic DSH provider:
 
 ## Requirements
 
-- DeepSeek Harness `0.1.0-rc.7` or a compatible release
+- DeepSeek Harness `0.1.0-rc.7` or `0.1.0-rc.8`
 - Node.js `22.19+` or `24+`
 - A running CLIProxyAPI instance
 
-The plugin is currently built and tested against the public DSH `0.1.0-rc.7` contract.
+The plugin is currently built and tested against the public DSH `0.1.0-rc.8` contract while retaining
+runtime compatibility with the rc.7-based DSH Desktop release.
 
 ## Install
 

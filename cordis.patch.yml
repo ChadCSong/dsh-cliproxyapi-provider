@@ -3,4 +3,4 @@
 # inside that adapter through the public settings service.
 - insert:
     - id: llm-cliproxyapi-auto
-      name: dsh-cliproxyapi
+      name: dsh-cliproxyapi-provider

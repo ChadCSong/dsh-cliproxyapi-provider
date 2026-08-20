@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.4
+
+- Build and type-check against the public DSH `0.1.0-rc.8` contracts.
+- Load the rc.8 remote-event type assembly explicitly so model-catalog refresh subscriptions remain type-safe.
+- Point the DSH bundle loader at the published `dsh-cliproxyapi-provider` package name.
+- Keep runtime compatibility with the rc.7-based DSH Desktop release.
+
 ## 0.1.3
 
 - Declare the DSH credential service as a startup dependency so a persisted CPA key is available on the first probe after restart.
