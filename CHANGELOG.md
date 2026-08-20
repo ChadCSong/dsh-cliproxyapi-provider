@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.6
+
+- Decouple the selected vision model from the conversation's main model using DSH's public `llm/stream` extension point.
+- Preprocess image attachments into factual text before calling text-only CPA models, allowing model switches in image-containing sessions.
+- Cache successful descriptions by provider, vision model, and immutable attachment ID.
+- Continue sending images directly when the selected main model is natively image-capable.
+- Add a `DeepSeek (CPA vision)` adapter alias that delegates to DSH's official DeepSeek provider after preprocessing, without patching DSH or duplicating its credentials.
+
 ## 0.1.5
 
 - Register the browser bundle with the published `dsh-cliproxyapi-provider` name required by DSH rc.8's strict client-module loader.

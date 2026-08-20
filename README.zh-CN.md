@@ -17,7 +17,10 @@
 - **动态模型发现**：读取 `/v1/models?client_version=pi`，同时兼容标准 `data[].id` 格式。
 - **原生模型切换**：所有模型进入 DSH 的模型选择器，显示在 `CLIProxyAPI (auto)` 分组下。
 - **新版本在上**：同一模型家族内按版本倒序排列。
-- **读图模型只能选择**：地址和 Key 生效后，从 CPA 返回的模型下拉列表选择，不能手填 ID。
+- **主模型与读图模型分离**：读图模型只能从 CPA 返回的列表选择；文本主模型遇到图片时，插件先
+  生成图片描述，再把纯文本交给主模型。
+- **本体 DeepSeek 桥接**：模型选择器里的 `DeepSeek (CPA vision)` 在 CPA 完成读图后，仍调用
+  DSH 自带的官方 DeepSeek provider，不复制它的密钥和传输实现。
 - **同步模型能力**：读取上下文上限、输出上限、reasoning、图片输入和 service tier 信息。
 - **自动刷新**：CPA 增删账号或模型后，无需重装插件。
 - **安全保存 Key**：API Key 通过 DSH credential service 保存，不写入 `settings.yaml`。
@@ -68,6 +71,7 @@ dsh plugin --profile web add "$PWD"
 3. CPA 开启 bearer 鉴权时，填写一次 API Key。
 4. 地址与 Key 生效后，在自动加载的下拉列表中选择读图模型。
 5. 回到会话，在 DSH 原生模型选择器的 **CLIProxyAPI (auto)** 分组中选择模型。
+   如果要在带图片的会话中使用 DSH 本体 DeepSeek，请在 **DeepSeek (CPA vision)** 分组选择同名模型。
 
 还可以使用：
 
@@ -117,15 +121,22 @@ dsh-cliproxyapi:
 
 ### 读图模型
 
-DSH 在附加图片前会检查模型的 `inputModalities`。插件优先采用 CPA 的 `input_modalities` 信息；如果
-目录没有标注，显式选择读图模型会在 DSH 内为该模型补充 `image` 能力。模型本身仍需真正支持
-OpenAI 兼容的图片内容。
+读图模型与会话里选择的主模型互相独立。主模型原生支持图片时，图片会直接交给主模型；主模型
+只支持文本时，插件先调用所选读图模型，把每张图片转换成事实描述，再将纯文本交给主模型。
+描述会按 provider、读图模型和不可变 attachment ID 缓存。因此带图片的会话也能切回 DeepSeek
+等文本模型，全程不修改 DSH 本体。
+
+原始 **DeepSeek** 分组仍会如实保持文本能力。插件额外提供 **DeepSeek (CPA vision)** 公共 adapter
+别名：底层继续使用 DSH 官方模型、credential、reasoning、重试与传输链路，只由插件补上读图预处理。
+
+留空时自动采用目录里第一个声明 image 输入的模型。显式选择的模型即使目录未标注，也必须真实
+支持 OpenAI 兼容的图片输入。
 
 ## 兼容原理
 
 插件通过公开的 settings contract 管理 DSH 官方 `@deepseek-ai/dsh-llm-pi-ai` adapter 中的一条
-route，不自行复制模型传输层。因此流式响应、工具调用、附件、reasoning 和错误处理仍由官方 adapter
-负责。
+route，并通过公开的 `llm/stream` waterfall 完成读图预处理；不修改 Harness，也不自行复制模型
+传输层。因此流式响应、工具调用、附件、reasoning 和错误处理仍由官方 adapter 负责。
 
 Host 代码不导入 Electron 或 `dsh-plugin-desktop` API，设置卡片也只使用公开 DSH client service/slot，
 所以它可以同时用于 CLI/Web 和 Desktop profile。

@@ -16,7 +16,7 @@ export interface Config {
   baseURL?: string
   /** Credential/environment reference, never the literal secret. */
   apiKeyEnv?: string
-  /** Model id that should be advertised as accepting image input. */
+  /** Model used to turn images into text before a text-only main model runs. */
   visionModel?: string
   protocol?: CpaProtocol
   refreshIntervalSeconds?: number

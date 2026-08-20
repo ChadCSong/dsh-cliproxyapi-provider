@@ -18,6 +18,8 @@ describe('pi-ai route mapping', () => {
     expect(built.profile.baseURL).toBe('http://localhost:8317/v1')
     expect(built.profile.apiKeyEnv).toBe('CLIPROXYAPI_API_KEY')
     expect(built.visionModel).toBe('vl-model')
+    expect(built.directImageModels).toEqual(['vl-model'])
+    expect(built.profile.models[0]).toMatchObject({ id: 'text-model', input: ['text', 'image'] })
     expect(built.profile.models[1]).toMatchObject({
       id: 'vl-model', input: ['text', 'image'], reasoningEfforts: { off: null, high: 'high' },
     })
@@ -27,6 +29,7 @@ describe('pi-ai route mapping', () => {
     const built = buildPiAiRoute(resolveConfig({ visionModel: 'text-model' }), discovery, false)
     expect(built.visionModel).toBe('text-model')
     expect(built.profile.models[0]?.input).toEqual(['text', 'image'])
+    expect(built.directImageModels).toEqual(['text-model', 'vl-model'])
     expect(built.profile.headers).toEqual({ Authorization: 'Bearer cpa-local' })
     expect(built.profile.apiKeyEnv).toBeUndefined()
   })

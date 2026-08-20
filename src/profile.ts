@@ -24,6 +24,7 @@ export interface PiAiRouteProfile {
 export interface BuiltRoute {
   profile: PiAiRouteProfile
   visionModel?: string
+  directImageModels: string[]
 }
 
 function supportedReasoning(model: CpaCatalogModel): Record<string, string | null> | undefined {
@@ -35,15 +36,16 @@ function supportedReasoning(model: CpaCatalogModel): Record<string, string | nul
   return Object.keys(result).length === 0 ? undefined : result
 }
 
-function modelProfile(model: CpaCatalogModel, forcedVisionModel: string): PiAiModelProfile {
-  const acceptsImage = forcedVisionModel === model.id || model.inputModalities.includes('image')
+function modelProfile(model: CpaCatalogModel, visionRoutingAvailable: boolean): PiAiModelProfile {
   const reasoningEfforts = supportedReasoning(model)
   return {
     id: model.id,
     ...model.name === undefined ? {} : { name: model.name },
     ...model.contextWindow === undefined ? {} : { contextWindow: model.contextWindow },
     ...model.maxTokens === undefined ? {} : { maxTokens: model.maxTokens },
-    input: acceptsImage ? ['text', 'image'] : ['text'],
+    // When a vision route exists, the plugin accepts images on behalf of every
+    // CPA model and converts them to text before calling a text-only main model.
+    input: visionRoutingAvailable || model.inputModalities.includes('image') ? ['text', 'image'] : ['text'],
     ...reasoningEfforts === undefined ? {} : { reasoningEfforts },
   }
 }
@@ -98,17 +100,21 @@ export function buildPiAiRoute(
     : undefined
   const detectedVision = discovery.models.find(model => model.inputModalities.includes('image'))?.id
   const visionModel = explicitVision ?? detectedVision
+  const directImageModels = discovery.models
+    .filter(model => model.inputModalities.includes('image') || model.id === explicitVision)
+    .map(model => model.id)
   const orderedModels = sortModelsNewestFirst(discovery.models)
   return {
     profile: {
       displayName: config.displayName,
       api: config.protocol,
       baseURL: `${discovery.rootURL}/v1`,
-      models: orderedModels.map(model => modelProfile(model, explicitVision ?? '')),
+      models: orderedModels.map(model => modelProfile(model, visionModel !== undefined)),
       ...(hasApiKey
         ? { apiKeyEnv: config.apiKeyEnv }
         : { headers: { Authorization: 'Bearer cpa-local' } }),
     },
+    directImageModels,
     ...visionModel === undefined ? {} : { visionModel },
   }
 }

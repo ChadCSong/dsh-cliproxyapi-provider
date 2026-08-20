@@ -3,6 +3,7 @@ import type { SettingsProvider } from '@deepseek-ai/dsh-settings'
 import type { ResolvedConfig } from './config.js'
 import { discoverCpa } from './discovery.js'
 import { buildPiAiRoute, type PiAiRouteProfile } from './profile.js'
+import type { VisionRoutingState } from './vision-routing.js'
 
 const PI_AI_NS = settingsNamespace('llm-pi-ai')
 
@@ -41,11 +42,17 @@ export class CpaRuntime {
   private rerun = false
   private controller = new AbortController()
   private currentStatus: CpaStatus = { state: 'idle', modelCount: 0 }
+  private currentRouting: VisionRoutingState | undefined
 
   constructor(private readonly options: CpaRuntimeOptions) {}
 
   status(): CpaStatus {
     return { ...this.currentStatus }
+  }
+
+  visionRouting(): VisionRoutingState | undefined {
+    const routing = this.currentRouting
+    return routing === undefined ? undefined : { ...routing, directImageModels: [...routing.directImageModels] }
   }
 
   refresh(): Promise<void> {
@@ -82,6 +89,7 @@ export class CpaRuntime {
       }
       this.activeProvider = undefined
       this.activeProfile = undefined
+      this.currentRouting = undefined
       this.currentStatus = { state: 'disabled', modelCount: 0 }
       return
     }
@@ -117,6 +125,11 @@ export class CpaRuntime {
       modelCount: result.models.length,
       ...built.visionModel === undefined ? {} : { visionModel: built.visionModel },
       refreshedAt: new Date().toISOString(),
+    }
+    this.currentRouting = built.visionModel === undefined ? undefined : {
+      provider: config.provider,
+      visionModel: built.visionModel,
+      directImageModels: built.directImageModels,
     }
     this.options.logger.info(
       `dsh-cliproxyapi: connected to ${result.rootURL}; synchronized ${result.models.length} model(s)`

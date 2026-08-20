@@ -15,12 +15,12 @@ declare module '@deepseek-ai/dsh-client-ui-slots' {
 
 export const zh: Record<LocaleKey, string> = {
   title: 'CLIProxyAPI（自动探测）',
-  description: '自动发现本机 CPA、同步模型到原生模型选择器。也可指定一个读图模型。',
+  description: '自动发现本机 CPA、同步模型到原生模型选择器，并用所选读图模型辅助文本主模型理解图片。',
   enabled: '启用', enabledHint: '关闭后移除本插件管理的 CPA provider。',
   apiKey: 'CPA API Key', apiKeyHint: '写入 DSH 凭据存储，不会写入 settings.yaml。', apiKeySet: '已配置', apiKeyUnset: '未配置',
   apiKeyEnv: '密钥引用名', apiKeyEnvHint: '默认 CLIPROXYAPI_API_KEY。',
   baseURL: 'CPA 地址（可选）', baseURLHint: '留空自动扫描 127.0.0.1 / localhost / ::1 的 8317 端口。',
-  visionModel: '读图模型', visionModelHint: '从当前 CPA 模型中选择；“自动选择”采用目录中声明 image 能力的第一个模型。',
+  visionModel: '读图模型', visionModelHint: '从当前 CPA 模型中选择；文本主模型遇到图片时，插件会先用它生成图片描述。',
   protocol: '推理协议', protocolHint: '默认 Chat Completions；CPA 部署要求 Responses 时可切换。',
   refreshIntervalSeconds: '自动刷新间隔（秒）', refreshIntervalSecondsHint: '默认 300，最小 15。',
   probeTimeoutMs: '单地址探测超时（毫秒）', probeTimeoutMsHint: '默认 2000。',
@@ -30,12 +30,12 @@ export const zh: Record<LocaleKey, string> = {
 
 export const en: Record<LocaleKey, string> = {
   title: 'CLIProxyAPI (auto discovery)',
-  description: 'Discovers local CPA and synchronizes its catalog into the native model picker, with an optional vision model.',
+  description: 'Discovers local CPA, synchronizes its catalog, and lets a selected vision model preprocess images for text-only main models.',
   enabled: 'Enabled', enabledHint: 'Disabling removes the CPA provider managed by this plugin.',
   apiKey: 'CPA API key', apiKeyHint: 'Stored in DSH credentials, never in settings.yaml.', apiKeySet: 'configured', apiKeyUnset: 'not configured',
   apiKeyEnv: 'Credential reference', apiKeyEnvHint: 'Defaults to CLIPROXYAPI_API_KEY.',
   baseURL: 'CPA URL (optional)', baseURLHint: 'Leave empty to scan port 8317 on 127.0.0.1, localhost, and ::1.',
-  visionModel: 'Vision model', visionModelHint: 'Choose from the current CPA catalog. Auto uses the first model declaring image input.',
+  visionModel: 'Vision model', visionModelHint: 'Choose from the CPA catalog. It describes images before a text-only main model runs.',
   protocol: 'Inference protocol', protocolHint: 'Chat Completions by default; switch when the CPA deployment requires Responses.',
   refreshIntervalSeconds: 'Refresh interval (seconds)', refreshIntervalSecondsHint: 'Default 300; minimum 15.',
   probeTimeoutMs: 'Probe timeout per URL (ms)', probeTimeoutMsHint: 'Default 2000.',

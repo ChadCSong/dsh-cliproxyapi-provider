@@ -32,15 +32,22 @@ describe('CPA runtime synchronization', () => {
       }),
     }])
     expect(runtime.status()).toMatchObject({ state: 'connected', modelCount: 1, visionModel: 'vision' })
+    expect(runtime.visionRouting()).toEqual({
+      provider: 'cliproxyapi', visionModel: 'vision', directImageModels: ['vision'],
+    })
 
     failing = true
     await runtime.refresh()
     expect(mutate).toHaveBeenCalledTimes(1)
     expect(runtime.status()).toMatchObject({ state: 'error', modelCount: 1 })
+    expect(runtime.visionRouting()).toEqual({
+      provider: 'cliproxyapi', visionModel: 'vision', directImageModels: ['vision'],
+    })
 
     config = { ...config, enabled: false }
     await runtime.refresh()
     expect(mutate.mock.calls[1]?.[1]).toEqual([{ op: 'unset', path: ['providers', 'cliproxyapi'] }])
     expect(runtime.status()).toEqual({ state: 'disabled', modelCount: 0 })
+    expect(runtime.visionRouting()).toBeUndefined()
   })
 })
